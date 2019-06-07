@@ -1,0 +1,31 @@
+#! /bin/sh -x
+
+set -e
+
+image=rpkg-f30
+out_dir=/tmp/rpkg-container
+
+mkdir -p "$out_dir"
+setfacl -m u:104999:rwx "$out_dir"
+chcon -t svirt_sandbox_file_t "$out_dir"
+
+container=$(podman run --rm -v "$out_dir:$out_dir:Z" -d "$image" sleep 1800)
+
+terminate()
+{
+    podman kill "$container"
+}
+trap terminate EXIT
+
+git_source=$(git rev-parse --show-toplevel)
+
+base=$(basename "$(readlink -f "$git_source")")
+
+cachedir=/tmp/praiskup/git-copy-"$base"
+rm -rf "$cachedir"
+
+git clone "$git_source" "$cachedir"
+
+podman cp "$cachedir"/. "$container":/var/tmp/source/
+
+podman exec -ti "$container" bash
