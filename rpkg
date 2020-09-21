@@ -2,7 +2,7 @@
 
 set -e
 
-image=rpkg-f30
+image=rpkg-util
 out_dir=/tmp/rpkg-container
 
 mkdir -p "$out_dir"

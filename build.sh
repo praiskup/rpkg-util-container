@@ -1,14 +1,15 @@
 #! /bin/sh -x
 
 uid=5000
-image_name=rpkg-f30
+from=fedora:33
+image_name=rpkg-util
 build_container=rpkg-build-container
 
 if buildah containers --format '{{.ContainerName}}' \
     | grep "^$build_container$"; then
     bcont=$build_container
 else
-    bcont=$(buildah from --name rpkg-build-container "${1:-fedora:30}")
+    bcont=$(buildah from --name rpkg-build-container "${1:-$from}")
 fi
 buildah config --user 0 "$bcont"
 
